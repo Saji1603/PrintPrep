@@ -1,0 +1,22 @@
+{
+  "name": "PrintPrep",
+  "id": "1689655555469657761",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
+  "editorType": [
+    "figma"
+  ],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://printprep-9q56.onrender.com"
+    ],
+    "devAllowedDomains": [
+      "http://localhost:8765"
+    ],
+    "reasoning": "PrintPrep uses a remote conversion service to convert selected Figma artwork into a print-ready CMYK PDF."
+  }
+}

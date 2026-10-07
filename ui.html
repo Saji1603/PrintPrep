@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>PrintPrep</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      color: #111111;
+      background: #ffffff;
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.7px;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: #737373;
+      font-size: 15px;
+    }
+
+    .card {
+      background: #f5f5f5;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .label {
+      color: #777777;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px;
+      background: #e5e5e5;
+      margin: 18px 0;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      height: 54px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .analyze {
+      background: #eeeeee;
+      color: #111111;
+    }
+
+    .convert {
+      background: #18aa62;
+      color: white;
+    }
+
+    /* ------------------------------------------------------------
+       COLOR CONVERSION SETTINGS
+    ------------------------------------------------------------ */
+
+    .settings-card {
+      background: #f5f5f5;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .setting-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .profile-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #ffffff;
+      border: 1px solid #e1e1e1;
+      border-radius: 10px;
+      padding: 13px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+    }
+
+    .profile-option:hover {
+      border-color: #bdbdbd;
+    }
+
+    .profile-option.active {
+      border-color: #18aa62;
+      background: #f8fffb;
+    }
+
+    .profile-option input {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      accent-color: #18aa62;
+      flex-shrink: 0;
+    }
+
+    .profile-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .profile-description {
+      font-size: 12px;
+      color: #777777;
+      line-height: 1.4;
+    }
+
+    .profile-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 7px;
+      border-radius: 5px;
+      background: #eeeeee;
+      color: #666666;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .profile-option.active .profile-badge {
+      background: #e1f6ea;
+      color: #147a45;
+    }
+
+    .profile-info {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #777777;
+      line-height: 1.5;
+    }
+
+    .result {
+      display: none;
+      background: #f0faf4;
+      color: #147a45;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .error {
+      display: none;
+      background: #fff0f0;
+      color: #c62828;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .analysis {
+      display: none;
+      margin-bottom: 18px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .analysis-item {
+      background: #f5f5f5;
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    .analysis-number {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .analysis-label {
+      color: #777;
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .footer {
+      color: #777777;
+      font-size: 13px;
+      line-height: 1.55;
+      margin-top: 20px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+
+    <div class="title">
+      PrintPrep
+    </div>
+
+    <div class="subtitle">
+      RGB → CMYK print preparation
+    </div>
+
+  </div>
+
+
+  <!-- ----------------------------------------------------------
+       SELECTED ARTWORK
+  ----------------------------------------------------------- -->
+
+  <div class="card">
+
+    <div class="label">
+      Selected artwork
+    </div>
+
+    <div
+      class="value"
+      id="selectionName"
+    >
+      No selection
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="label">
+      Size
+    </div>
+
+    <div
+      class="value"
+      id="selectionSize"
+    >
+      —
+    </div>
+
+  </div>
+
+
+  <!-- ----------------------------------------------------------
+       COLOR CONVERSION SETTINGS
+  ----------------------------------------------------------- -->
+
+  <div class="settings-card">
+
+    <div class="setting-title">
+      Colour conversion
+    </div>
+
+
+    <label
+      class="profile-option active"
+      id="standardOption"
+    >
+
+      <input
+        type="radio"
+        name="conversionMode"
+        value="standard"
+        checked
+      />
+
+      <div class="profile-content">
+
+        <div class="profile-name">
+          Standard CMYK
+        </div>
+
+        <div class="profile-description">
+          General RGB → CMYK conversion without a printer ICC profile.
+        </div>
+
+        <span class="profile-badge">
+          DEFAULT
+        </span>
+
+      </div>
+
+    </label>
+
+
+    <label
+      class="profile-option"
+      id="swopOption"
+    >
+
+      <input
+        type="radio"
+        name="conversionMode"
+        value="swop"
+      />
+
+      <div class="profile-content">
+
+        <div class="profile-name">
+          Agfa SWOP Standard
+        </div>
+
+        <div class="profile-description">
+          CMYK conversion using the Agfa SWOP Standard printer profile.
+        </div>
+
+        <span class="profile-badge">
+          RSWOP.ICM
+        </span>
+
+      </div>
+
+    </label>
+
+
+    <div class="profile-info">
+      ICC profiles control how RGB colours are translated into
+      the target CMYK printing colour space.
+    </div>
+
+  </div>
+
+
+  <!-- ----------------------------------------------------------
+       ANALYZE
+  ----------------------------------------------------------- -->
+
+  <button
+    class="analyze"
+    id="analyzeButton"
+  >
+    Analyze Selection
+  </button>
+
+
+  <div
+    class="analysis"
+    id="analysis"
+  >
+
+    <div class="analysis-grid">
+
+      <div class="analysis-item">
+
+        <div
+          class="analysis-number"
+          id="colorCount"
+        >
+          —
+        </div>
+
+        <div class="analysis-label">
+          Unique colours
+        </div>
+
+      </div>
+
+
+      <div class="analysis-item">
+
+        <div
+          class="analysis-number"
+          id="resolution"
+        >
+          —
+        </div>
+
+        <div class="analysis-label">
+          Export resolution
+        </div>
+
+      </div>
+
+
+      <div class="analysis-item">
+
+        <div
+          class="analysis-number"
+          id="colorMode"
+        >
+          RGB
+        </div>
+
+        <div class="analysis-label">
+          Source colour mode
+        </div>
+
+      </div>
+
+
+      <div class="analysis-item">
+
+        <div
+          class="analysis-number"
+          id="targetMode"
+        >
+          CMYK
+        </div>
+
+        <div class="analysis-label">
+          Output colour mode
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ----------------------------------------------------------
+       CONVERT
+  ----------------------------------------------------------- -->
+
+  <button
+    class="convert"
+    id="convertButton"
+    disabled
+  >
+    Convert to CMYK PDF
+  </button>
+
+
+  <div
+    class="loading"
+    id="loading"
+  >
+    Preparing print-ready PDF...
+  </div>
+
+
+  <div
+    class="result"
+    id="result"
+  ></div>
+
+
+  <div
+    class="error"
+    id="error"
+  ></div>
+
+
+  <div class="footer">
+
+    PrintPrep exports the complete selected artwork,
+    including multiple colours, images, gradients,
+    shadows and text, then converts the exported artwork
+    to CMYK for print preparation.
+
+  </div>
+
+
+  <script>
+
+    let currentSelection = null;
+
+    let conversionMode = "standard";
+
+
+    const selectionName =
+      document.getElementById("selectionName");
+
+    const selectionSize =
+      document.getElementById("selectionSize");
+
+    const analyzeButton =
+      document.getElementById("analyzeButton");
+
+    const convertButton =
+      document.getElementById("convertButton");
+
+    const analysis =
+      document.getElementById("analysis");
+
+    const loading =
+      document.getElementById("loading");
+
+    const result =
+      document.getElementById("result");
+
+    const errorBox =
+      document.getElementById("error");
+
+    const standardOption =
+      document.getElementById("standardOption");
+
+    const swopOption =
+      document.getElementById("swopOption");
+
+
+    /* ----------------------------------------------------------
+       CONVERSION MODE
+    ----------------------------------------------------------- */
+
+    function updateConversionMode() {
+
+      const selected =
+        document.querySelector(
+          'input[name="conversionMode"]:checked'
+        );
+
+      if (!selected) {
+        conversionMode = "standard";
+        return;
+      }
+
+      conversionMode = selected.value;
+
+
+      standardOption.classList.toggle(
+        "active",
+        conversionMode === "standard"
+      );
+
+      swopOption.classList.toggle(
+        "active",
+        conversionMode === "swop"
+      );
+
+    }
+
+
+    document
+      .querySelectorAll(
+        'input[name="conversionMode"]'
+      )
+      .forEach((radio) => {
+
+        radio.addEventListener(
+          "change",
+          updateConversionMode
+        );
+
+      });
+
+
+    updateConversionMode();
+
+
+    /* ----------------------------------------------------------
+       ERROR / RESULT
+    ----------------------------------------------------------- */
+
+    function showError(message) {
+
+      errorBox.textContent = message;
+
+      errorBox.style.display = "block";
+
+      result.style.display = "none";
+
+      loading.style.display = "none";
+
+    }
+
+
+    function clearMessages() {
+
+      errorBox.style.display = "none";
+
+      result.style.display = "none";
+
+    }
+
+
+    /* ----------------------------------------------------------
+       BASE64 HELPERS
+    ----------------------------------------------------------- */
+
+    function bytesToBase64(bytes) {
+
+      let binary = "";
+
+      const chunkSize = 8192;
+
+      for (
+        let i = 0;
+        i < bytes.length;
+        i += chunkSize
+      ) {
+
+        const chunk =
+          bytes.slice(i, i + chunkSize);
+
+        binary += String.fromCharCode(...chunk);
+
+      }
+
+      return btoa(binary);
+
+    }
+
+
+    function base64ToBlob(
+      base64,
+      mimeType
+    ) {
+
+      const binary =
+        atob(base64);
+
+      const length =
+        binary.length;
+
+      const bytes =
+        new Uint8Array(length);
+
+      for (
+        let i = 0;
+        i < length;
+        i++
+      ) {
+
+        bytes[i] =
+          binary.charCodeAt(i);
+
+      }
+
+      return new Blob(
+        [bytes],
+        {
+          type: mimeType
+        }
+      );
+
+    }
+
+
+    /* ----------------------------------------------------------
+       IMAGE ANALYSIS
+    ----------------------------------------------------------- */
+
+    async function analyzeImage(
+      bytes
+    ) {
+
+      try {
+
+        const blob =
+          new Blob(
+            [
+              new Uint8Array(bytes)
+            ],
+            {
+              type: "image/png"
+            }
+          );
+
+
+        const bitmap =
+          await createImageBitmap(blob);
+
+
+        const canvas =
+          document.createElement(
+            "canvas"
+          );
+
+
+        canvas.width =
+          bitmap.width;
+
+        canvas.height =
+          bitmap.height;
+
+
+        const ctx =
+          canvas.getContext("2d");
+
+
+        if (!ctx) {
+
+          throw new Error(
+            "Unable to analyse artwork."
+          );
+
+        }
+
+
+        ctx.drawImage(
+          bitmap,
+          0,
+          0
+        );
+
+
+        const imageData =
+          ctx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
+
+
+        const data =
+          imageData.data;
+
+
+        const colors =
+          new Set();
+
+
+        // Sampling keeps analysis fast
+        // for large posters.
+
+        const step =
+          Math.max(
+            1,
+            Math.floor(
+              data.length / 4 / 50000
+            )
+          );
+
+
+        for (
+          let pixel = 0;
+          pixel < data.length;
+          pixel += 4 * step
+        ) {
+
+          const r =
+            data[pixel];
+
+          const g =
+            data[pixel + 1];
+
+          const b =
+            data[pixel + 2];
+
+          const a =
+            data[pixel + 3];
+
+
+          if (a > 10) {
+
+            colors.add(
+              `${r},${g},${b}`
+            );
+
+          }
+
+        }
+
+
+        document.getElementById(
+          "colorCount"
+        ).textContent =
+          colors.size.toLocaleString();
+
+
+        document.getElementById(
+          "resolution"
+        ).textContent =
+          `${canvas.width} × ${canvas.height}`;
+
+
+        document.getElementById(
+          "colorMode"
+        ).textContent =
+          "RGB";
+
+
+        document.getElementById(
+          "targetMode"
+        ).textContent =
+          "CMYK";
+
+
+        analysis.style.display =
+          "block";
+
+
+      } catch (err) {
+
+        console.error(err);
+
+        showError(
+          "Unable to analyse the selected artwork."
+        );
+
+      }
+
+    }
+
+
+    /* ----------------------------------------------------------
+       ANALYZE BUTTON
+    ----------------------------------------------------------- */
+
+    analyzeButton.addEventListener(
+      "click",
+      () => {
+
+        clearMessages();
+
+
+        if (!currentSelection) {
+
+          showError(
+            "Please select a frame or artwork first."
+          );
+
+          return;
+
+        }
+
+
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "export-selection"
+            }
+          },
+          "*"
+        );
+
+      }
+    );
+
+
+    /* ----------------------------------------------------------
+       CONVERT BUTTON
+    ----------------------------------------------------------- */
+
+    convertButton.addEventListener(
+      "click",
+      () => {
+
+        clearMessages();
+
+
+        if (!currentSelection) {
+
+          showError(
+            "Please select a frame or artwork first."
+          );
+
+          return;
+
+        }
+
+
+        loading.style.display =
+          "block";
+
+
+        convertButton.disabled =
+          true;
+
+
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "export-selection"
+            }
+          },
+          "*"
+        );
+
+      }
+    );
+
+
+    /* ----------------------------------------------------------
+       FIGMA MESSAGES
+    ----------------------------------------------------------- */
+
+    window.onmessage =
+      async (event) => {
+
+        const message =
+          event.data.pluginMessage;
+
+
+        if (!message) {
+          return;
+        }
+
+
+        /* ------------------------------------------------------
+           SELECTION
+        ------------------------------------------------------- */
+
+        if (
+          message.type === "selection"
+        ) {
+
+          currentSelection =
+            message.data;
+
+
+          if (!currentSelection) {
+
+            selectionName.textContent =
+              "No selection";
+
+            selectionSize.textContent =
+              "—";
+
+            convertButton.disabled =
+              true;
+
+            analysis.style.display =
+              "none";
+
+            return;
+
+          }
+
+
+          selectionName.textContent =
+            currentSelection.name;
+
+
+          selectionSize.textContent =
+            `${currentSelection.width} × ${currentSelection.height} px`;
+
+
+          convertButton.disabled =
+            false;
+
+
+          return;
+
+        }
+
+
+        /* ------------------------------------------------------
+           EXPORTED IMAGE
+        ------------------------------------------------------- */
+
+        if (
+          message.type === "exported-image"
+        ) {
+
+          const imageBytes =
+            message.bytes;
+
+
+          // Analyze button and convert button
+          // both use the same export pipeline.
+
+          if (
+            loading.style.display !==
+            "none"
+          ) {
+
+            await convertToCMYK(
+              imageBytes,
+              message.name,
+              message.width,
+              message.height
+            );
+
+          } else {
+
+            await analyzeImage(
+              imageBytes
+            );
+
+          }
+
+
+          return;
+
+        }
+
+
+        /* ------------------------------------------------------
+           EXPORT ERROR
+        ------------------------------------------------------- */
+
+        if (
+          message.type === "export-error"
+        ) {
+
+          showError(
+            message.message
+          );
+
+
+          convertButton.disabled =
+            false;
+
+        }
+
+      };
+
+
+    /* ----------------------------------------------------------
+       CONVERT TO CMYK
+    ----------------------------------------------------------- */
+
+    async function convertToCMYK(
+      bytes,
+      name,
+      width,
+      height
+    ) {
+
+      try {
+
+        const imageBase64 =
+          bytesToBase64(bytes);
+
+
+        /*
+         * If Standard CMYK is selected:
+         *
+         *   iccProfile = null
+         *
+         * The Python server uses its normal
+         * RGB -> CMYK conversion.
+         *
+         *
+         * If Agfa SWOP is selected:
+         *
+         *   iccProfile = "RSWOP.icm"
+         *
+         * The Python server performs an
+         * sRGB -> Agfa SWOP CMYK ICC conversion.
+         */
+
+        const iccProfile =
+          conversionMode === "swop"
+            ? "RSWOP.icm"
+            : null;
+
+
+        const response =
+          await fetch(
+            "https://printprep-9q56.onrender.com/convert",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify(
+                {
+                  filename: name,
+
+                  width: width,
+
+                  height: height,
+
+                  image: imageBase64,
+
+                  iccProfile:
+                    iccProfile
+                }
+              )
+
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `Server returned ${response.status}`
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.success) {
+
+          throw new Error(
+            data.error ||
+            "CMYK conversion failed."
+          );
+
+        }
+
+
+        const pdfBlob =
+          base64ToBlob(
+            data.pdf,
+            "application/pdf"
+          );
+
+
+        const downloadUrl =
+          URL.createObjectURL(
+            pdfBlob
+          );
+
+
+        const link =
+          document.createElement("a");
+
+
+        link.href =
+          downloadUrl;
+
+
+        link.download =
+          data.filename ||
+          "PrintPrep-CMYK.pdf";
+
+
+        document.body.appendChild(
+          link
+        );
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        setTimeout(
+          () => {
+
+            URL.revokeObjectURL(
+              downloadUrl
+            );
+
+          },
+          1000
+        );
+
+
+        loading.style.display =
+          "none";
+
+
+        if (
+          data.iccProfile
+        ) {
+
+          result.textContent =
+            `CMYK PDF created using ${data.iccProfile}. Your download should start automatically.`;
+
+        } else {
+
+          result.textContent =
+            "CMYK PDF created successfully. Your download should start automatically.";
+
+        }
+
+
+        result.style.display =
+          "block";
+
+
+        convertButton.disabled =
+          false;
+
+
+      } catch (err) {
+
+        console.error(err);
+
+
+        loading.style.display =
+          "none";
+
+
+        showError(
+          err instanceof Error
+            ? err.message
+            : "Failed to connect to PrintPrep."
+        );
+
+
+        convertButton.disabled =
+          false;
+
+      }
+
+    }
+
+  </script>
+
+</body>
+
+</html>
